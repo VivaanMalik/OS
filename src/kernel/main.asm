@@ -17,21 +17,23 @@ puts:
     ; save registers to modify
     push si
     push ax
-    push bx
+    ; push bx
 
 .loop:
-    lodsb               ; load next char in al
-    or al, al
-    jz .done
+    lodsb               ; [DS:SI], SI++
+    or al, al           ; check for 0 terminator (bitwise OR on al) ax divided into ah and al
+                        ; if al not 0, value remains same
+                        ; raises zero flag if al = 0
+    jz .done            ; jz sees if zero flag raised
 
-    mov ah, 0x0e
-    mov bh, 0
-    int 0x10
+    mov ah, 0x0e        ; Tells bios to print char
+    mov bh, 0           ; Tells bios to print on display 0
+    int 0x10            ; interrupt (int) bios to print char
     
     jmp .loop
 
 .done:
-    pop bx
+    ; pop bx
     pop ax
     pop si
     ret
@@ -54,7 +56,7 @@ main:
     mov sp, 0x7C00      ; sp = stack pointer
 
     ; print msg
-    mov si, Init_msg
+    mov si, Init_msg    ; load msg first address to si
     call puts
 
     hlt                 ; halt
